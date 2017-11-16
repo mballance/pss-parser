@@ -36,7 +36,7 @@ runtime.unpack : $(PSS_PARSER_SCRIPTS_DIR)/antlr4-cpp-runtime-4.7-source.zip
 
 grammar.gen : $(PSS_PARSER_SRC_DIR)/PSS.g4
 	mkdir -p grammar
-	java -jar $(PSS_PARSER_SCRIPTS_DIR)/antlr-4.7-complete.jar -Dlanguage=Cpp -o grammar $^
+	java -jar $(PSS_PARSER_SCRIPTS_DIR)/antlr-4.7-complete.jar -Dlanguage=Cpp -visitor -o grammar $^
 	touch $@
 
 clean :
