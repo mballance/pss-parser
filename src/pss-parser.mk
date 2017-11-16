@@ -5,8 +5,8 @@ PSS_PARSER_SCRIPTS_DIR := $(PSS_PARSER_SRC_DIR)/../scripts
 
 ifneq (1, $(RULES))
 
-include grammar/src.mk
-include antlr4-cpp-runtime/src.mk
+-include grammar/src.mk
+-include antlr4-cpp-runtime/src.mk
 
 ANTLR4_CPP_RUNTIME_DIR=antlr4-cpp-runtime/runtime/src
 
@@ -18,44 +18,42 @@ SRC_DIRS += $(ANTLR4_CPP_RUNTIME_DIR)/tree/pattern
 SRC_DIRS += $(ANTLR4_CPP_RUNTIME_DIR)/tree/xpath 
 SRC_DIRS += grammar
 
+LIB_TARGETS += libpss_parser.a libantlr_runtime.a
+
 else # Rules
 
 libpss_parser.a : $(PSS_GRAMMAR_SRC:.cpp=.o)
-	rm -f $@
-	$(AR) vcq $@ $^
+	$(Q)rm -f $@
+	$(Q)$(AR) vcq $@ $^
 
 libantlr_runtime.a : $(ANTLR_RT_SRC:.cpp=.o)
 	rm -f $@
 	$(AR) vcq $@ $^
 
 runtime.unpack : $(PSS_PARSER_SCRIPTS_DIR)/antlr4-cpp-runtime-4.7-source.zip
-	rm -rf antlr4-cpp-runtime
-	mkdir antlr4-cpp-runtime
-	cd antlr4-cpp-runtime ; unzip $^
-	touch $@
+	$(Q)rm -rf antlr4-cpp-runtime
+	$(Q)mkdir antlr4-cpp-runtime
+	$(Q)cd antlr4-cpp-runtime ; $(UNZIP) $^
+	$(Q)touch $@
 
 grammar.gen : $(PSS_PARSER_SRC_DIR)/PSS.g4
-	mkdir -p grammar
-	java -jar $(PSS_PARSER_SCRIPTS_DIR)/antlr-4.7-complete.jar -Dlanguage=Cpp -visitor -o grammar $^
-	touch $@
+	$(Q)mkdir -p grammar
+	$(Q)java -jar $(PSS_PARSER_SCRIPTS_DIR)/antlr-4.7-complete.jar -Dlanguage=Cpp -visitor -o grammar $^
+	$(Q)touch $@
 
-clean :
-	rm -rf grammar grammar.gen antlr4-cpp-runtime runtime.unpack *.o
-	
 grammar/src.mk : grammar.gen
-	echo 'PSS_GRAMMAR_SRC += $$(notdir $$(wildcard grammar/*.cpp))' > $@
+	$(Q)echo 'PSS_GRAMMAR_SRC += $$(notdir $$(wildcard grammar/*.cpp))' > $@
 	
 antlr4-cpp-runtime/src.mk : runtime.unpack
-	echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/*.cpp))' > $@
-	echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/atn/*.cpp))' >> $@
-	echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/dfa/*.cpp))' >> $@
-	echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/support/*.cpp))' >> $@
-	echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/tree/*.cpp))' >> $@
-	echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/tree/pattern/*.cpp))' >> $@
-	echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/tree/xpath/*.cpp))' >> $@
-	echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/misc/*.cpp))' >> $@
+	$(Q)echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/*.cpp))' > $@
+	$(Q)echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/atn/*.cpp))' >> $@
+	$(Q)echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/dfa/*.cpp))' >> $@
+	$(Q)echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/support/*.cpp))' >> $@
+	$(Q)echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/tree/*.cpp))' >> $@
+	$(Q)echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/tree/pattern/*.cpp))' >> $@
+	$(Q)echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/tree/xpath/*.cpp))' >> $@
+	$(Q)echo 'ANTLR_RT_SRC += $$(notdir $$(wildcard antlr4-cpp-runtime/runtime/src/misc/*.cpp))' >> $@
 
-# $(PSS_PARSER_SRC_DIR)/pss-parser.mk : grammar.gen runtime.unpack
 
 endif # End Rules
 
