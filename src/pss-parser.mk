@@ -3,6 +3,10 @@ PSS_PARSER_SRC_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 PSS_PARSER_SRC_DIR := $(shell cd $(PSS_PARSER_SRC_DIR) ; pwd)
 PSS_PARSER_SCRIPTS_DIR := $(PSS_PARSER_SRC_DIR)/../scripts
 
+ifeq (,$(UNZIP))
+UNZIP := unzip -o
+endif
+
 ifneq (1, $(RULES))
 
 -include grammar/src.mk

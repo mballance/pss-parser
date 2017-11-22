@@ -160,15 +160,15 @@ struct_declaration: struct_type identifier (struct_super_spec)? '{'
 ;
 
 struct_type:
-	('struct' | 'buffer' | 'stream' | 'state' | ('resource' ('[' constant_expression ']')?))
+	(img='struct' | img='buffer' | img='stream' | img='state' | (img='resource' ('[' constant_expression ']')?))
 ;
 
 struct_super_spec : ':' type_identifier
 ;
 
-struct_qualifier:
-	 ('memory' | 'stream' | 'state' | ('resource' ('[' constant_expression ']')?))
-;
+//struct_qualifier:
+//	 ('memory' | 'stream' | 'state' | ('resource' ('[' constant_expression ']')?))
+//;
 
 struct_body_item:
 	constraint_declaration		|
@@ -574,9 +574,9 @@ integer_type:
 	integer_atom_type ('[' 
 		expression
 		(
-			(':' expression) | 
-			(',' open_range_value (',' open_range_value)*) | 
-			('..' expression (',' open_range_value)*)
+			(is_width=':' expression) | 
+			(is_range1=',' open_range_value (',' open_range_value)*) | 
+			(is_range='..' expression (',' open_range_value)*)
 		)?
 		']'
 	)? 
@@ -600,7 +600,7 @@ open_range_value:
 constraint_declaration:
 	 
 	(
-		(('dynamic')? 'constraint' identifier '{' constraint_body_item* '}') |
+		((is_dynamic='dynamic')? 'constraint' identifier '{' constraint_body_item* '}') |
 		('constraint' '{' constraint_body_item* '}') | 
 		('constraint' single_stmt_constraint)
 	)
@@ -745,110 +745,113 @@ coverspec_cross: (
 	)
 ;
 
-//coverspec_paths_body_item:
-//	coverspec_option |
-//	coverspec_paths_include_exclude
-//;
-//
-//coverspec_paths:
-//	ID ':' 'paths' hierarchical_id ',' (hierarchical_id | '{' hierarchical_id (',' hierarchical_id)*)
-//		(
-//			( '{' coverspec_paths_body_item* '}') | ';'
-//		)
-//;
-//
-//coverspec_paths_include_exclude:
-//	('include'|'exclude') ('paths'|'values') ('{' identifier (',' identifier)* '}')? ';'
-//;
-
- 
 /********************************************************************
  * H1: Expressions
  ********************************************************************/
 
 constant_expression: expression;
 
-expression: 
-	condition_expr
+expression:
+	unary_op lhs=expression								|
+	lhs=expression exp_op rhs=expression 				|
+	lhs=expression mul_div_mod_op rhs=expression 		|
+	lhs=expression add_sub_op rhs=expression			|
+	lhs=expression shift_op rhs=expression				|
+    lhs=expression logical_inequality_op rhs=expression	|
+    lhs=expression eq_neq_op rhs=expression				|
+    lhs=expression binary_and_op rhs=expression			|
+    lhs=expression binary_xor_op rhs=expression			|
+    lhs=expression binary_or_op rhs=expression			|
+    lhs=expression logical_and_op rhs=expression		|
+    lhs=expression logical_or_op rhs=expression			|
+	primary
 	;
-	
-condition_expr :
-	logical_or_expr ( '?' logical_or_expr ':' logical_or_expr)*
-	; 
 
-logical_or_expr :
-	logical_and_expr ( '||' logical_and_expr)*
-;
-
-logical_and_expr :
-	binary_or_expr ( '&&' binary_or_expr)*	
-;
-
-binary_or_expr :
-	binary_xor_expr ( '|' binary_xor_expr)*
-;
-
-binary_xor_expr :
-	binary_and_expr ( '^' binary_and_expr)*
-;
-
-binary_and_expr :
-	logical_equality_expr ( '&' logical_equality_expr)*
-;
-
-logical_equality_expr :
-	logical_inequality_expr ( eq_neq_op logical_inequality_expr)*
-;
-
-logical_inequality_expr : 
-		binary_shift_expr ( logical_inequality_rhs)*
-;
-
-logical_inequality_rhs :
-	inequality_expr_term | inside_expr_term
-;
-
-inequality_expr_term :
-	logical_inequality_op binary_shift_expr
-;
-
-inside_expr_term :
-	'inside' '[' open_range_list ']'
-;
-
+//condition_expr :
+//	cond=logical_or_expr ( '?' true_expr=logical_or_expr ':' false_expr=logical_or_expr)*
+//	; 
+//
+//logical_or_expr :
+//	lhs=logical_and_expr ( '||' logical_and_expr)*
+//;
+logical_or_op : '||';
+//
+//logical_and_expr :
+//	binary_or_expr ( '&&' binary_or_expr)*	
+//;
+logical_and_op : '&&';
+//
+//binary_or_expr :
+//	binary_xor_expr ( '|' binary_xor_expr)*
+//;
+binary_or_op : '|';
+//
+//binary_xor_expr :
+//	binary_and_expr ( '^' binary_and_expr)*
+//;
+binary_xor_op : '^';
+//
+//binary_and_expr :
+//	logical_equality_expr ( '&' logical_equality_expr)*
+//;
+binary_and_op : '&';
+//
+//logical_equality_expr :
+//	logical_inequality_expr ( eq_neq_op logical_inequality_expr)*
+//;
+//
+//logical_inequality_expr : 
+//		binary_shift_expr ( logical_inequality_rhs)*
+//;
+//
+//logical_inequality_rhs :
+//	inequality_expr_term | inside_expr_term
+//;
+//
+//inequality_expr_term :
+//	logical_inequality_op binary_shift_expr
+//;
+//
+//inside_expr_term :
+//	'inside' '[' open_range_list ']'
+//;
+//
 logical_inequality_op:
 	'<'|'<='|'>'|'>='
 ;
-
-binary_shift_expr :
-	binary_add_sub_expr ( shift_op binary_add_sub_expr)*
-;
-
-binary_add_sub_expr :
-	binary_mul_div_mod_expr ( add_sub_op binary_mul_div_mod_expr)*
-;
-
-binary_mul_div_mod_expr :
-	binary_exp_expr ( mul_div_mod_op binary_exp_expr)*
-;
-
-binary_exp_expr :
-	unary_expr ( '**' unary_expr)*
-;
+//
+//binary_shift_expr :
+//	binary_add_sub_expr ( shift_op binary_add_sub_expr)*
+//;
+//
+//binary_add_sub_expr :
+//	binary_mul_div_mod_expr ( add_sub_op binary_mul_div_mod_expr)*
+//;
+//
+//binary_mul_div_mod_expr :
+//	binary_exp_expr ( mul_div_mod_op binary_exp_expr)*
+//;
+//
+//binary_exp_expr :
+//	unary_expr ( '**' unary_expr)*
+//;
 
 unary_op: '+' | '-' | '!' | '~' | '&' | '|' | '^';
 
+exp_op: '**';
+
+//
 eq_neq_op: '==' | '!=';
-
+//
 shift_op: '<<' | '>>';
-
+//
 add_sub_op: '+' | '-';
-
+//
 mul_div_mod_op: '*' | '/' | '%';
-
-unary_expr :
-	(unary_op)? primary
-;
+//
+//unary_expr :
+//	(unary_op)? primary
+//;
 
 primary: //; :
 	number 					
