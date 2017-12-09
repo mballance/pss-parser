@@ -28,11 +28,11 @@ else # Rules
 
 libpss_parser.a : $(PSS_GRAMMAR_SRC:.cpp=.o)
 	$(Q)rm -f $@
-	$(Q)$(AR) vcq $@ $^
+	$(Q)$(AR) vcq $@ $(filter-out build-%,$^)
 
 libantlr_runtime.a : $(ANTLR_RT_SRC:.cpp=.o)
 	rm -f $@
-	$(AR) vcq $@ $^
+	$(AR) vcq $@ $(filter-out build-%,$^)
 
 runtime.unpack : $(PSS_PARSER_SCRIPTS_DIR)/antlr4-cpp-runtime-4.7-source.zip
 	$(Q)rm -rf antlr4-cpp-runtime

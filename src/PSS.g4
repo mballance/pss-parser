@@ -37,19 +37,19 @@ package_body_item:
 
 extend_stmt:
 		(
-			('extend' 'action' type_identifier '{'
+			('extend' ext_type='action' type_identifier '{'
 				action_body_item*
 				'}' (';')?
 			) | 
-			('extend' 'struct' type_identifier '{'
+			('extend' ext_type='struct' type_identifier '{'
 				struct_body_item*
 				'}' (';')?
 			) |
-			('extend' 'enum' type_identifier '{'
+			('extend' ext_type='enum' type_identifier '{'
 				(enum_item (',' enum_item)*)?
 				'}' (';')?
 			) |
-			('extend' 'component' type_identifier '{'
+			('extend' ext_type='component' type_identifier '{'
 				component_body_item*
 				'}' (';')?
 			)
@@ -345,13 +345,13 @@ component_path_elem:
  ********************************************************************/
 activity_stmt: 
 	activity_if_else_stmt		
-	| activity_repeat_stmt 				
+	| activity_repeat_stmt 			//*	
 	| activity_constraint_stmt			
 	| activity_foreach_stmt				
-	| activity_action_traversal_stmt
-	| activity_sequence_block_stmt
-	| activity_select_stmt				
-	| activity_parallel_stmt				
+	| activity_action_traversal_stmt //*
+	| activity_sequence_block_stmt	//*
+	| activity_select_stmt			//*	
+	| activity_parallel_stmt		//*
 	| activity_schedule_stmt				
 	| activity_bind_stmt					
 //	| graph_method_call_stmt
@@ -389,7 +389,7 @@ activity_action_traversal_stmt:
 	 (
 		(variable_ref inline_with_constraint?
 		) |
-		('do' type_identifier inline_with_constraint?
+		(is_do='do' type_identifier inline_with_constraint?
 		)
 	)
 	';'
@@ -431,9 +431,9 @@ activity_labeled_stmt:
 
 activity_repeat_stmt:
 	 (
-		('repeat' 'while' '(' expression ')' activity_sequence_block_stmt) |
-		('repeat' '(' (identifier ':')? expression ')' activity_sequence_block_stmt) |
-		('repeat' activity_sequence_block_stmt ('while' '(' expression ')' ';')?)
+		('repeat' is_while='while' '(' expression ')' activity_sequence_block_stmt) |
+		('repeat' '(' (loop_var=identifier ':')? expression ')' activity_sequence_block_stmt) |
+		('repeat' activity_sequence_block_stmt (is_do_while='while' '(' expression ')' ';')?)
 		)
 ;
 
